@@ -1,0 +1,330 @@
+@startuml
+namespace go_ethereum\\core\\vm {
+ class Contract {
+  CallerAddress common.Address
+  caller ContractRef
+  self ContractRef
+  jumpdests map[common.Hash]bitvec
+  analysis bitvec
+  Code []byte
+  CodeHash common.Hash
+  CodeAddr *common.Address
+  Input []byte
+  Gas uint64
+  value *big.Int
+} 
+}
+namespace go_ethereum\\core\\vm {
+ class ecrecover {
+} 
+}
+namespace go_ethereum\\core\\vm {
+ class sha256hash {
+} 
+}
+namespace go_ethereum\\core\\vm {
+ class ripemd160hash {
+} 
+}
+namespace go_ethereum\\core\\vm {
+ class dataCopy {
+} 
+}
+namespace go_ethereum\\core\\vm {
+ class bigModExp {
+} 
+}
+namespace go_ethereum\\core\\vm {
+ class bn256AddIstanbul {
+} 
+}
+namespace go_ethereum\\core\\vm {
+ class bn256AddByzantium {
+} 
+}
+namespace go_ethereum\\core\\vm {
+ class bn256ScalarMulIstanbul {
+} 
+}
+namespace go_ethereum\\core\\vm {
+ class bn256ScalarMulByzantium {
+} 
+}
+namespace go_ethereum\\core\\vm {
+ class bn256PairingIstanbul {
+} 
+}
+namespace go_ethereum\\core\\vm {
+ class bn256PairingByzantium {
+} 
+}
+namespace go_ethereum\\core\\vm {
+ class blake2F {
+} 
+}
+namespace go_ethereum\\core\\vm {
+ class Context {
+  CanTransfer CanTransferFunc
+  Transfer TransferFunc
+  GetHash GetHashFunc
+  Origin common.Address
+  GasPrice *big.Int
+  Coinbase common.Address
+  GasLimit uint64
+  BlockNumber *big.Int
+  Time *big.Int
+  Difficulty *big.Int
+} 
+}
+namespace go_ethereum\\core\\vm {
+ class EVM {
+  Context
+  StateDB StateDB
+  depth int
+  chainConfig *params.ChainConfig
+  chainRules params.Rules
+  vmConfig Config
+  interpreters []Interpreter
+  interpreter Interpreter
+  abort int32
+  callGasTemp uint64
+} 
+}
+namespace go_ethereum\\core\\vm {
+ class codeAndHash {
+  code []byte
+  hash common.Hash
+} 
+}
+namespace go_ethereum\\core\\vm {
+ class Config {
+  Debug bool
+  Tracer Tracer
+  NoRecursion bool
+  EnablePreimageRecording bool
+  JumpTable []operation
+  EWASMInterpreter string
+  EVMInterpreter string
+  ExtraEips []int
+} 
+}
+namespace go_ethereum\\core\\vm {
+ class callCtx {
+  memory *Memory
+  stack *Stack
+  contract *Contract
+} 
+}
+namespace go_ethereum\\core\\vm {
+ class EVMInterpreter {
+  evm *EVM
+  cfg Config
+  intPool *intPool
+  hasher keccakState
+  hasherBuf common.Hash
+  readOnly bool
+  returnData []byte
+} 
+}
+namespace go_ethereum\\core\\vm {
+ class intPool {
+  pool *Stack
+} 
+}
+namespace go_ethereum\\core\\vm {
+ class intPoolPool {
+  pools []*intPool
+  lock sync.Mutex
+} 
+}
+namespace go_ethereum\\core\\vm {
+ class operation {
+  execute executionFunc
+  constantGas uint64
+  dynamicGas gasFunc
+  minStack int
+  maxStack int
+  memorySize memorySizeFunc
+  halts bool
+  jumps bool
+  writes bool
+  valid bool
+  reverts bool
+  returns bool
+} 
+}
+namespace go_ethereum\\core\\vm {
+ class LogConfig {
+  DisableMemory bool
+  DisableStack bool
+  DisableStorage bool
+  Debug bool
+  Limit int
+} 
+}
+namespace go_ethereum\\core\\vm {
+ class StructLog {
+  Pc uint64
+  Op OpCode
+  Gas uint64
+  GasCost uint64
+  Memory []byte
+  MemorySize int
+  Stack []*big.Int
+  Storage map[common.Hash]common.Hash
+  Depth int
+  RefundCounter uint64
+  Err error
+} 
+}
+namespace go_ethereum\\core\\vm {
+ class structLogMarshaling {
+  Stack []*math.HexOrDecimal256
+  Gas math.HexOrDecimal64
+  GasCost math.HexOrDecimal64
+  Memory hexutil.Bytes
+  OpName string
+  ErrorString string
+} 
+}
+namespace go_ethereum\\core\\vm {
+ class StructLogger {
+  cfg LogConfig
+  logs []StructLog
+  changedValues map[common.Address]Storage
+  output []byte
+  err error
+} 
+}
+namespace go_ethereum\\core\\vm {
+ class JSONLogger {
+  encoder *json.Encoder
+  cfg *LogConfig
+} 
+}
+namespace go_ethereum\\core\\vm {
+ class Memory {
+  store []byte
+  lastGasCost uint64
+} 
+}
+namespace go_ethereum\\core\\vm\\runtime {
+ class Config {
+  ChainConfig *params.ChainConfig
+  Difficulty *big.Int
+  Origin common.Address
+  Coinbase common.Address
+  BlockNumber *big.Int
+  Time *big.Int
+  GasLimit uint64
+  GasPrice *big.Int
+  Value *big.Int
+  Debug bool
+  EVMConfig vm.Config
+  State *state.StateDB
+  GetHashFn func(n uint64)common.Hash
+} 
+}
+namespace go_ethereum\\core\\vm {
+ class Stack {
+  data []*big.Int
+} 
+}
+namespace go_ethereum\\core\\vm {
+ interface ContractRef  {
+  Address()common.Address
+} 
+}
+namespace go_ethereum\\core\\vm {
+ interface PrecompiledContract  {
+  RequiredGas(input []byte)uint64
+  Run(input []byte)([]byte,error)
+} 
+}
+namespace go_ethereum\\core\\vm {
+ interface StateDB  {
+  CreateAccount(common.Address)
+  SubBalance(common.Address,*big.Int)
+  AddBalance(common.Address,*big.Int)
+  GetBalance(common.Address)*big.Int
+  GetNonce(common.Address)uint64
+  SetNonce(common.Address,uint64)
+  GetCodeHash(common.Address)common.Hash
+  GetCode(common.Address)[]byte
+  SetCode(common.Address,[]byte)
+  GetCodeSize(common.Address)int
+  AddRefund(uint64)
+  SubRefund(uint64)
+  GetRefund()uint64
+  GetCommittedState(common.Address,common.Hash)common.Hash
+  GetState(common.Address,common.Hash)common.Hash
+  SetState(common.Address,common.Hash,common.Hash)
+  Suicide(common.Address)bool
+  HasSuicided(common.Address)bool
+  Exist(common.Address)bool
+  Empty(common.Address)bool
+  RevertToSnapshot(int)
+  Snapshot()int
+  AddLog(*types.Log)
+  AddPreimage(common.Hash,[]byte)
+  ForEachStorage(common.Address,func(common.Hash,common.Hash)bool)error
+} 
+}
+namespace go_ethereum\\core\\vm {
+ interface CallContext  {
+  Call(env *EVM,me ContractRef,addr common.Address,data []byte,gas,value *big.Int)([]byte,error)
+  CallCode(env *EVM,me ContractRef,addr common.Address,data []byte,gas,value *big.Int)([]byte,error)
+  DelegateCall(env *EVM,me ContractRef,addr common.Address,data []byte,gas *big.Int)([]byte,error)
+  Create(env *EVM,me ContractRef,data []byte,gas,value *big.Int)([]byte,common.Address,error)
+} 
+}
+namespace go_ethereum\\core\\vm {
+ interface Interpreter  {
+  Run(contract *Contract,input []byte,static bool)([]byte,error)
+  CanRun([]byte)bool
+} 
+}
+namespace go_ethereum\\core\\vm {
+ interface keccakState  {
+  Read([]byte)(int,error)
+} 
+}
+namespace go_ethereum\\core\\vm {
+ interface Tracer  {
+  CaptureStart(from common.Address,to common.Address,create bool,input []byte,gas uint64,value *big.Int)error
+  CaptureState(env *EVM,pc uint64,op OpCode,gas,cost uint64,memory *Memory,stack *Stack,contract *Contract,depth int,err error)error
+  CaptureFault(env *EVM,pc uint64,op OpCode,gas,cost uint64,memory *Memory,stack *Stack,contract *Contract,depth int,err error)error
+  CaptureEnd(output []byte,gasUsed uint64,t time.Duration,err error)error
+} 
+}
+go_ethereum\\core\\vm.EVM -|> go_ethereum\\core\\vm.Context
+go_ethereum\\core\\vm.EVM ---> go_ethereum\\core\\vm.Config : vmConfig
+go_ethereum\\core\\vm.Config ---> "*" go_ethereum\\core\\vm.operation : JumpTable
+go_ethereum\\core\\vm.callCtx ---> go_ethereum\\core\\vm.Memory : memory
+go_ethereum\\core\\vm.callCtx ---> go_ethereum\\core\\vm.Stack : stack
+go_ethereum\\core\\vm.callCtx ---> go_ethereum\\core\\vm.Contract : contract
+go_ethereum\\core\\vm.EVMInterpreter ---> go_ethereum\\core\\vm.EVM : evm
+go_ethereum\\core\\vm.EVMInterpreter ---> go_ethereum\\core\\vm.Config : cfg
+go_ethereum\\core\\vm.EVMInterpreter ---> go_ethereum\\core\\vm.intPool : intPool
+go_ethereum\\core\\vm.intPool ---> go_ethereum\\core\\vm.Stack : pool
+go_ethereum\\core\\vm.intPoolPool ---> "*" go_ethereum\\core\\vm.intPool : pools
+go_ethereum\\core\\vm.StructLogger ---> go_ethereum\\core\\vm.LogConfig : cfg
+go_ethereum\\core\\vm.StructLogger ---> "*" go_ethereum\\core\\vm.StructLog : logs
+go_ethereum\\core\\vm.JSONLogger ---> go_ethereum\\core\\vm.LogConfig : cfg
+go_ethereum\\core\\vm.ContractRef <|- go_ethereum\\core\\vm.Contract
+go_ethereum\\core\\vm.PrecompiledContract <|- go_ethereum\\core\\vm.ecrecover
+go_ethereum\\core\\vm.PrecompiledContract <|- go_ethereum\\core\\vm.sha256hash
+go_ethereum\\core\\vm.PrecompiledContract <|- go_ethereum\\core\\vm.ripemd160hash
+go_ethereum\\core\\vm.PrecompiledContract <|- go_ethereum\\core\\vm.dataCopy
+go_ethereum\\core\\vm.PrecompiledContract <|- go_ethereum\\core\\vm.bigModExp
+go_ethereum\\core\\vm.PrecompiledContract <|- go_ethereum\\core\\vm.bn256AddIstanbul
+go_ethereum\\core\\vm.PrecompiledContract <|- go_ethereum\\core\\vm.bn256AddByzantium
+go_ethereum\\core\\vm.PrecompiledContract <|- go_ethereum\\core\\vm.bn256ScalarMulIstanbul
+go_ethereum\\core\\vm.PrecompiledContract <|- go_ethereum\\core\\vm.bn256ScalarMulByzantium
+go_ethereum\\core\\vm.PrecompiledContract <|- go_ethereum\\core\\vm.bn256PairingIstanbul
+go_ethereum\\core\\vm.PrecompiledContract <|- go_ethereum\\core\\vm.bn256PairingByzantium
+go_ethereum\\core\\vm.PrecompiledContract <|- go_ethereum\\core\\vm.blake2F
+go_ethereum\\core\\vm.Interpreter <|- go_ethereum\\core\\vm.EVMInterpreter
+go_ethereum\\core\\vm.Tracer <|- go_ethereum\\core\\vm.StructLogger
+go_ethereum\\core\\vm.Tracer <|- go_ethereum\\core\\vm.JSONLogger
+@enduml
